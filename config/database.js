@@ -27,10 +27,11 @@ const User = connection.define("User", {
   },
   hash: Sequelize.STRING,
   salt: Sequelize.STRING,
+  admin: Sequelize.BOOLEAN,
 });
 
 // Create tables if they don't exist
-connection.sync();
+connection.sync({ alter: true });
 
 // Expose the connection and User model
 module.exports = { connection, User };
