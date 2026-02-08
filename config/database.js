@@ -1,34 +1,36 @@
-const mongoose = require('mongoose');
+const { Sequelize } = require("sequelize");
 
-require('dotenv').config();
+require("dotenv").config();
 
 /**
  * -------------- DATABASE ----------------
  */
 
 /**
- * Connect to MongoDB Server using the connection string in the `.env` file.  To implement this, place the following
+ * Connect to PostgreSQL Server using the connection string in the `.env` file. To implement this, place the following
  * string into the `.env` file
- * 
- * DB_STRING=mongodb://<user>:<password>@localhost:27017/database_name
- */ 
+ *
+ * DB_STRING=postgres://user:password@localhost:5432/database_name
+ */
 
-const conn = process.env.DB_STRING;
-
-const connection = mongoose.createConnection(conn, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+const connection = new Sequelize(process.env.DB_STRING, {
+  dialect: "postgres",
+  logging: false,
 });
 
-// Creates simple schema for a User.  The hash and salt are derived from the user's given password when they register
-const UserSchema = new mongoose.Schema({
-    username: String,
-    hash: String,
-    salt: String
+// Define User model
+const User = connection.define("User", {
+  username: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  hash: Sequelize.STRING,
+  salt: Sequelize.STRING,
 });
 
+// Create tables if they don't exist
+connection.sync();
 
-const User = connection.model('User', UserSchema);
-
-// Expose the connection
-module.exports = connection;
+// Expose the connection and User model
+module.exports = { connection, User };
